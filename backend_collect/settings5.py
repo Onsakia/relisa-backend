@@ -11,28 +11,35 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
-import dj_database_url
-
+from dotenv import load_dotenv
+from datetime import timedelta
+import environ
+env = environ.Env()
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', '')
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-allowed_hosts_str = os.getenv('ALLOWED_HOSTS', '.ondigitalocean.app')
-ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_str.split(',') if h.strip()]
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-cors_str = os.getenv('CORS_ALLOWED_ORIGINS', '')
-CORS_ALLOWED_ORIGINS = [c.strip() for c in cors_str.split(',') if c.strip()]
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = "django-insecure-c^w*_z+0ao6*yhiet07e94or9dx0udc)2wx+ufz$5y13d7y71i"
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3')
-    )
-}
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+#ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,192.168.1.65').split(',')]
+
+# UPDATED — Allow all hosts in debug, specific hosts in production
+if DEBUG:
+    ALLOWED_HOSTS = ['*']  # Allows any host (cloudflared, ngrok, local IP, etc.)
+else:
+    ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')]
+
+#ALLOWED_HOSTS = []
+
+
+# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -47,14 +54,12 @@ INSTALLED_APPS = [
     'rest_framework_gis',
     'django_filters',
     'corsheaders',
-    'whitenoise.runserver_nostatic',
     'collect',
 ]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
